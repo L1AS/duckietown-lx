@@ -25,8 +25,8 @@ from solution.preprocessing import preprocess
 # TODO edit this Config class ! Play with different gain and const values
 @dataclass
 class BraitenbergAgentConfig:
-    gain: float = 0.9
-    const: float = 0.0
+    gain: float = 0.25
+    const: float = 0.25
 
 
 class BraitenbergAgent:
@@ -90,14 +90,21 @@ class BraitenbergAgent:
         self.r_min = min(r, self.r_min)
 
         # now rescale from 0 to 1
-        ls = rescale(l, self.l_min, self.l_max)
-        rs = rescale(r, self.r_min, self.r_max)
+        if l == 0 and r == 0:
+            ls = 0
+            rs = 0
+            self.l_max = -math.inf
+            self.r_max = -math.inf
+        else:
+            ls = rescale(l, self.l_min, self.l_max)
+            rs = rescale(r, self.r_min, self.r_max)
 
         gain = self.config.gain
         const = self.config.const
         pwm_left = const + ls * gain
         pwm_right = const + rs * gain
 
+        print(l, r, ls, rs, pwm_left, pwm_right)
         return pwm_left, pwm_right
 
     def on_received_get_commands(self, context: Context, data: GetCommands):
